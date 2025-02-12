@@ -22,6 +22,7 @@ class Birthday_Importer {
 		add_action( 'admin_menu', array( $this, 'add_admin_menu' ) );
 		add_action( 'admin_enqueue_scripts', array( $this, 'enqueue_scripts' ) );
 		add_action( 'wp_ajax_process_birthday_import', array( $this, 'process_birthday_import' ) );
+		add_action( 'admin_notices', array( $this, 'check_required_plugins' ) );
 
 		// Add filter for plugin action links.
 		add_filter(
@@ -439,6 +440,60 @@ class Birthday_Importer {
 				return 'A PHP extension stopped the file upload.';
 			default:
 				return 'Unknown upload error.';
+		}
+	}
+
+	/**
+	 * Check if required plugins are active and show admin notice if they're not
+	 */
+	public function check_required_plugins() {
+		// Only show on our plugin's page
+		$screen = get_current_screen();
+		if ( 'tools_page_import-birthdays' !== $screen->id ) {
+			return;
+		}
+
+		$missing_plugins = array();
+
+		// Check for AutomateWoo using their function
+		if ( ! function_exists( 'AW' ) ) {
+			$missing_plugins[] = 'AutomateWoo';
+		}
+
+		// Check for AutomateWoo Birthdays using their function
+		if ( ! function_exists( 'AW_Birthdays' ) ) {
+			$missing_plugins[] = 'AutomateWoo Birthdays Add-on';
+		}
+
+		if ( ! empty( $missing_plugins ) ) {
+			$message = sprintf(
+				'<div class="notice notice-error"><p><strong>%s</strong></p><p>%s</p></div>',
+				esc_html__( 'Required plugins are missing:', 'import-birthdays' ),
+				esc_html(
+					sprintf(
+						/* translators: %s: List of missing plugin names */
+						__( 'The following plugins are required for the Birthday Importer to work: %s', 'import-birthdays' ),
+						implode( ', ', $missing_plugins )
+					)
+				)
+			);
+			echo wp_kses_post( $message );
+
+			// Disable the form if plugins are missing
+			?>
+			<style>
+				.birthday-import-form { 
+					opacity: 0.5; 
+					pointer-events: none;
+				}
+				.birthday-import-form::before {
+					content: "Please install and activate required plugins first";
+					display: block;
+					margin-bottom: 10px;
+					color: #dc3232;
+				}
+			</style>
+			<?php
 		}
 	}
 }
