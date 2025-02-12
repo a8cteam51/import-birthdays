@@ -2,6 +2,11 @@
 
 A WordPress plugin that allows administrators to import user birthdays via CSV file. This plugin works with the AutomateWoo Birthdays addon.
 
+## Screenshot
+
+<img width="805" alt="Screenshot 2025-02-12 at 11 49 37" src="https://github.com/user-attachments/assets/c93e70b9-7c59-4e3c-b57d-d419f6d8bfec" />
+
+
 ## Features
 
 - Simple CSV import interface
